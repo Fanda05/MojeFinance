@@ -17,18 +17,18 @@ import { Link, useLocation } from "react-router-dom";
 type Props = { open: boolean; onClose: () => void };
 
 //Definice položek menu
-const items = [
-  { to: "/", label: "Přehled", icon: <DashboardIcon /> },
-  { to: "/transactions", label: "Transakce", icon: <ReceiptLongIcon /> },
-  { to: "/budgets", label: "Rozpočty", icon: <AccountBalanceWalletIcon /> },
-  { to: "/settings", label: "Nastavení", icon: <SettingsIcon /> },
-];
+import { usePreferences } from "../../context/PreferencesContext";
 
 //Hlavní komponenta AppSidebar
 export default function AppSidebar({ open, onClose }: Props) {
- 
-  //Získání aktuální cesty url - zvýraznění aktivní položky
   const { pathname } = useLocation();
+  const { t } = usePreferences();
+  const items = [
+    { to: "/", label: t("nav.dashboard"), icon: <DashboardIcon /> },
+    { to: "/transactions", label: t("nav.transactions"), icon: <ReceiptLongIcon /> },
+    { to: "/budgets", label: t("nav.budgets"), icon: <AccountBalanceWalletIcon /> },
+    { to: "/settings", label: t("nav.settings"), icon: <SettingsIcon /> },
+  ];
   return (
    
     // Boční vysouvající se panel

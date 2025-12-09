@@ -1,0 +1,52 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+
+  auth_service:
+    build:
+      context: ./auth_service
+    depends_on:
+      - postgres
+    env_file:
+      - .env
+    ports:
+      - "4002:4002"
+
+  bank_service:
+    build:
+      context: ./bank_service
+    depends_on:
+      - postgres
+      - auth_service
+    env_file:
+      - .env
+    ports:
+      - "4000:4000"
+
+  analytics_service:
+    build:
+      context: ./analytics_service
+    depends_on:
+      - postgres
+      - bank_service
+    env_file:
+      - .env
+    ports:
+      - "4001:4001"
+
+volumes:
+  postgres-data:

@@ -1,37 +1,38 @@
-
-// Horní lišta s názvem aplikace a tlačítkem pro menu
-
-// Import komponent z Material UI
-import { AppBar, Toolbar, Typography, IconButton } from "@mui/material";
-
-// Import ikony menu
+import { AppBar, Toolbar, Typography, IconButton, Tooltip } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
+import LogoutIcon from "@mui/icons-material/Logout";
+import { useNavigate } from "react-router-dom";
+import { logoutUser } from "../../api/auth";
+import { useBankContext } from "../../context/BankContext";
+import { usePreferences } from "../../context/PreferencesContext";
 
-//Typy vlastností, které komponenta přijímá
 type Props = { onMenuClick?: () => void; title?: string };
 
+export default function TopBar({ onMenuClick, title }: Props) {
+  const navigate = useNavigate();
+  const { refreshAccounts } = useBankContext();
+  const { t } = usePreferences();
 
-//Hlavní komponenta TopBar
-export default function TopBar({ onMenuClick, title = "MojeFinance" }: Props) {
+  const handleLogout = async () => {
+    await logoutUser();
+    await refreshAccounts();
+    navigate("/login");
+  };
+
   return (
-    //Horní lišta - fixně nahoře
     <AppBar position="sticky" elevation={0}>
       <Toolbar>
-       
-        {/* Tlačítko pro otevření bočního menu */}
-        <IconButton 
-        edge="start"              //Umístění vlevo
-        color="inherit"           //Zdědí barvu
-        onClick={onMenuClick}     //Otevře sidebar po kliknutí
-        aria-label="menu"         //Popis pro čtečky
-        >
-
-        {/* Ikona menu (hamburger) */}  
+        <IconButton edge="start" color="inherit" onClick={onMenuClick} aria-label="menu">
           <MenuIcon />
         </IconButton>
-
-        {/* Název aplikace */}
-        <Typography variant="h6" sx={{ ml: 1 }}>{title}</Typography>
+        <Typography variant="h6" sx={{ ml: 1, flexGrow: 1 }}>
+          {title || t("appName")}
+        </Typography>
+        <Tooltip title={t("common.logout")}>
+          <IconButton color="inherit" onClick={handleLogout}>
+            <LogoutIcon />
+          </IconButton>
+        </Tooltip>
       </Toolbar>
     </AppBar>
   );
